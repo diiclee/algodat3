@@ -82,7 +82,7 @@ def find_path(filename_graph, start, end):
                     if current_line is not None:
                         path_details.append(f"Umsteigen von {current_line} zu {line} bei {original_names[path[i]]}")
                     current_line = line
-                path_details.append(f"{original_names[path[i]]} zu {original_names[path[i + 1]]} über {current_line} (Kosten: {c})")
+                path_details.append(f"{original_names[path[i]]} zu {original_names[path[i + 1]]} über {current_line} (Kosten: {c} Euro)")
                 break
     path_details.append(f"Gesamtkosten: {total_cost} Euro")
     path_details.append(f"Gesamtfahrzeit: {total_cost} Minuten")
