@@ -2,8 +2,12 @@
 
 import sys
 
+def normalize_station_name(name):
+    return ''.join(e for e in name.lower() if e.isalnum())
+
 def read_graph(filename):
     graph = {}
+    original_names = {}
     with open(filename, 'r') as file:
         for line in file:
             parts = line.strip().split(':')
@@ -12,7 +16,11 @@ def read_graph(filename):
             cost_strings = parts[1].strip().split('"')[2::2]
             costs = [int(cost_string.strip().split()[0]) for cost_string in cost_strings if cost_string.strip()]
 
-            segments = segments_costs
+            for i in range(len(segments_costs)):
+                normalized_name = normalize_station_name(segments_costs[i])
+                original_names[normalized_name] = segments_costs[i]
+
+            segments = [normalize_station_name(name) for name in segments_costs]
             for i in range(len(segments) - 1):
                 if segments[i] not in graph:
                     graph[segments[i]] = []
@@ -20,7 +28,7 @@ def read_graph(filename):
                     graph[segments[i + 1]] = []
                 graph[segments[i]].append((segments[i + 1], costs[i], line_name))
                 graph[segments[i + 1]].append((segments[i], costs[i], line_name))
-    return graph
+    return graph, original_names
 
 def dijkstra(graph, start, end):
     shortest_paths = {start: (None, 0)}
@@ -58,8 +66,11 @@ def dijkstra(graph, start, end):
     return total_cost, path
 
 def find_path(filename_graph, start, end):
-    graph = read_graph(filename_graph)
-    total_cost, path = dijkstra(graph, start, end)
+    graph, original_names = read_graph(filename_graph)
+    start_normalized = normalize_station_name(start)
+    end_normalized = normalize_station_name(end)
+    
+    total_cost, path = dijkstra(graph, start_normalized, end_normalized)
     if path == []:
         return [f"Kein Pfad gefunden von {start} nach {end}"]
 
@@ -70,20 +81,20 @@ def find_path(filename_graph, start, end):
             if v2 == path[i + 1]:
                 if current_line != line:
                     if current_line is not None:
-                        path_details.append(f"Umsteigen von {current_line} zu {line} bei {path[i]}")
+                        path_details.append(f"Umsteigen von {current_line} zu {line} bei {original_names[path[i]]}")
                     current_line = line
-                path_details.append(f"{path[i]} zu {path[i + 1]} über {current_line} (Kosten: {c})")
+                path_details.append(f"{original_names[path[i]]} zu {original_names[path[i + 1]]} über {current_line} (Kosten: {c})")
                 break
     path_details.append(f"Gesamtkosten: {total_cost}")
     return path_details
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
+    if len(sys.argv) < 4:
         print("Usage: find_path filename_graph start end")
         sys.exit(1)
     filename_graph = sys.argv[1]
-    start = sys.argv[2]
-    end = sys.argv[3]
+    start = ' '.join(sys.argv[2:-1])
+    end = sys.argv[-1]
     path_details = find_path(filename_graph, start, end)
     for detail in path_details:
         print(detail)
