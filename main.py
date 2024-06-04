@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+import timeit
 
 # Funktion zur Normalisierung des Stationnamens, indem nicht-alphanumerische Zeichen entfernt und in Kleinbuchstaben umgewandelt werden
 def normalize_station_name(name): 
@@ -103,15 +104,29 @@ def find_path(filename_graph, start, end):
     path_details.append(f"Gesamtkosten: {total_cost}")
     return path_details
 
-# Hauptfunktion
+# Funktion, um die Hauptfunktion auszuführen und die Laufzeit zu messen
+def measure_runtime(filename_graph, start, end):
+    runtime = timeit.timeit(lambda: find_path(filename_graph, start, end), number=1)
+    return runtime
+
 if __name__ == "__main__":
-    # Argumente einlesen, falls mindestens 4 Argumente vorhanden sind wobei sys.argv den Dateinamen, Start- und Endstation enthält
     if len(sys.argv) < 4: 
         print("Usage: find_path filename_graph start end") 
         sys.exit(1)
     filename_graph = sys.argv[1]  # Dateiname des Graphen
     start = ' '.join(sys.argv[2:-1])  # Startstation, Elemente von Index 2 bis zum vorletzten Element zusammenfügen
     end = sys.argv[-1]  # Endstation, Element am letzten Index
+    
     path_details = find_path(filename_graph, start, end)  # Pfaddetails finden
     for detail in path_details:
         print(detail)  # Pfaddetails ausgeben
+    
+    # Die Anzahl der Wiederholungen für den Durchschnitt festlegen
+    repetitions = 100
+    
+    # Die Laufzeiten für alle Wiederholungen messen
+    runtimes = [measure_runtime(filename_graph, start, end) for _ in range(repetitions)]
+    
+    # Den Durchschnitt der Laufzeiten berechnen
+    average_runtime = sum(runtimes) / repetitions
+    print("Durchschnittliche Laufzeit:", average_runtime)
