@@ -26,19 +26,20 @@ def read_graph(filename):
 
             # Stationennamen normalisieren und den Graphen aufbauen
             segments = [normalize_station_name(name) for name in segments_costs]
-            for i in range(len(segments) - 1):
-                if segments[i] not in graph:
+            for i in range(len(segments) - 1): #Iteriert über normalisierte Stationsnamen, um Kanten zu erstellen
+                if segments[i] not in graph: #prüft ob der Knoten im Graph ist, wenn nicht, fügt hinzu
                     graph[segments[i]] = []
-                if segments[i + 1] not in graph:
+                if segments[i + 1] not in graph: #das selbe für nächsten Knoten
                     graph[segments[i + 1]] = []
-                # Kanten zum Graphen hinzufügen
+                # Kanten und Kosten zum Graphen hinzufügen
                 graph[segments[i]].append((segments[i + 1], costs[i], line_name))
+                # Kanten und Kosten für die Rückrichtung hinzufügen, da es sich um ungerichtete Kanten handelt
                 graph[segments[i + 1]].append((segments[i], costs[i], line_name))
     return graph, original_names
 
 # Funktion zur Suche des kürzesten Pfads zwischen zwei Stationen mithilfe des Dijkstra-Algorithmus
 def dijkstra(graph, start, end):
-    shortest_paths = {start: (None, 0)}  # Dictionary zum Speichern der kürzesten Pfade, startkniten als Schlüssel, None als Vorgänger und 0 als Kosten
+    shortest_paths = {start: (None, 0)}  # Dictionary zum Speichern der kürzesten Pfade, Startknoten als Schlüssel, None als Vorgänger und 0 als Kosten
     current_node = start  # aktueller Knoten wird auf den Startknoten gesetzt
     visited = set()  # Menge zur Speicherung besuchter Knoten
     
